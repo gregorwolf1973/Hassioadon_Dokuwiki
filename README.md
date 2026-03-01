@@ -2,6 +2,8 @@
 
 ![DokuWiki Logo](https://www.dokuwiki.org/lib/tpl/dokuwiki/images/logo.png)
 
+Ich habe kein für meine zwecke brachbares WIKI für Homeassistant gefunden, weshalb ich dieses erstellt habe. Probiert es gerne aus, wenn es euch hilft freue ich mich ;-)
+
 ## Über dieses Add-on
 
 Dieses Add-on installiert [DokuWiki](https://www.dokuwiki.org) als Home Assistant Add-on. DokuWiki ist ein einfaches, aber mächtiges Wiki, das ohne Datenbank auskommt.
