@@ -1,53 +1,62 @@
 #!/bin/sh
 set -e
 
-# Persistente Daten in /share/dokuwiki
-mkdir -p /share/dokuwiki/data/pages
-mkdir -p /share/dokuwiki/data/attic
-mkdir -p /share/dokuwiki/data/media
-mkdir -p /share/dokuwiki/data/media_attic
-mkdir -p /share/dokuwiki/data/media_meta
-mkdir -p /share/dokuwiki/data/meta
-mkdir -p /share/dokuwiki/data/locks
-mkdir -p /share/dokuwiki/data/log
-mkdir -p /share/dokuwiki/data/index
-mkdir -p /share/dokuwiki/data/tmp
-mkdir -p /share/dokuwiki/data/cache
-mkdir -p /share/dokuwiki/conf
-mkdir -p /share/dokuwiki/tpl
-mkdir -p /share/dokuwiki/plugins
+# 1. Ensure the persistent directory exists
+STORAGE_DIR="/share/dokuwiki"
+mkdir -p $STORAGE_DIR
 
-# Original-Konfig kopieren falls conf leer ist
-if [ ! -f /share/dokuwiki/conf/dokuwiki.php ]; then
-    cp -r /var/www/dokuwiki.dist/conf/* /share/dokuwiki/conf/
+# 2. Create subdirectories if they don't exist
+for dir in data/pages data/attic data/media data/media_attic data/media_meta \
+           data/meta data/locks data/log data/index data/tmp data/cache \
+           conf tpl plugins; do
+    mkdir -p "$STORAGE_DIR/$dir"
+done
+
+# 3. Initial setup: Copy defaults if the config is missing
+if [ ! -f "$STORAGE_DIR/conf/dokuwiki.php" ]; then
+    echo "Initializing default configuration..."
+    cp -r /var/www/dokuwiki.dist/conf/* "$STORAGE_DIR/conf/"
 fi
 
-# Standard-Template kopieren falls tpl leer ist
-if [ ! -d /share/dokuwiki/tpl/dokuwiki ]; then
-    cp -r /var/www/dokuwiki.dist/lib/tpl/dokuwiki /share/dokuwiki/tpl/
+# 4. Sync Templates and Plugins (if empty)
+[ ! -d "$STORAGE_DIR/tpl/dokuwiki" ] && cp -r /var/www/dokuwiki.dist/lib/tpl/dokuwiki "$STORAGE_DIR/tpl/"
+[ ! -d "$STORAGE_DIR/plugins/config" ] && cp -r /var/www/dokuwiki.dist/lib/plugins/* "$STORAGE_DIR/plugins/"
+
+# 5. SYMLINK MAGIC
+# Clear internal folders to replace them with symlinks to /share
+rm -rf /var/www/dokuwiki/data /var/www/dokuwiki/conf /var/www/dokuwiki/lib/tpl /var/www/dokuwiki/lib/plugins
+
+ln -sf "$STORAGE_DIR/data" /var/www/dokuwiki/data
+ln -sf "$STORAGE_DIR/conf" /var/www/dokuwiki/conf
+ln -sf "$STORAGE_DIR/tpl" /var/www/dokuwiki/lib/tpl
+ln -sf "$STORAGE_DIR/plugins" /var/www/dokuwiki/lib/plugins
+
+# 6. THE INGRESS FIX
+# We tell DokuWiki to detect the Ingress path provided by the Home Assistant header
+# This prevents broken CSS and 404s on images.
+LOCAL_CONF="$STORAGE_DIR/conf/local.php"
+if [ ! -f "$LOCAL_CONF" ]; then
+    echo "<?php" > "$LOCAL_CONF"
 fi
 
-# Standard-Plugins kopieren falls plugins leer ist
-if [ ! -d /share/dokuwiki/plugins/config ]; then
-    cp -r /var/www/dokuwiki.dist/lib/plugins/* /share/dokuwiki/plugins/
+# Use sed to ensure basedir is set to the Ingress path header
+# This allows DokuWiki to resolve paths correctly through the proxy
+if ! grep -q "HTTP_X_INGRESS_PATH" "$LOCAL_CONF"; then
+    echo "Adding Ingress path logic to local.php..."
+    cat <<EOF >> "$LOCAL_CONF"
+if (isset(\$_SERVER['HTTP_X_INGRESS_PATH'])) {
+    \$conf['basedir'] = \$_SERVER['HTTP_X_INGRESS_PATH'] . '/';
+}
+EOF
 fi
 
-# Berechtigungen setzen
-chown -R nobody:nobody /share/dokuwiki
+# 7. Permissions (Ensure Nginx/PHP can write to /share)
+chown -R nobody:nobody "$STORAGE_DIR"
+chown -R nobody:nobody /var/www/dokuwiki
 
-# Symlinks zu persistenten Daten
-rm -rf /var/www/dokuwiki/data
-rm -rf /var/www/dokuwiki/conf
-rm -rf /var/www/dokuwiki/lib/tpl
-rm -rf /var/www/dokuwiki/lib/plugins
-
-ln -sf /share/dokuwiki/data /var/www/dokuwiki/data
-ln -sf /share/dokuwiki/conf /var/www/dokuwiki/conf
-ln -sf /share/dokuwiki/tpl /var/www/dokuwiki/lib/tpl
-ln -sf /share/dokuwiki/plugins /var/www/dokuwiki/lib/plugins
-
-# PHP-FPM starten
+# 8. Start Services
+echo "Starting PHP-FPM..."
 php-fpm83 -D
 
-# Nginx starten
+echo "Starting Nginx..."
 exec nginx -g 'daemon off;'
