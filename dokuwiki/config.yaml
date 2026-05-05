@@ -1,13 +1,15 @@
 name: "DokuWiki"
-description: "DokuWiki running as a Home Assistant Add-on"
+description: "A fast and light wiki for your Home Assistant documentation"
 version: "1.0.0"
 slug: "dokuwiki"
 init: false
+startup: application
 arch:
   - aarch64
   - amd64
 ingress: true
 ingress_port: 8080
+panel_icon: mdi:book-open-page-variant
 map:
   - share:rw
 host_network: false
