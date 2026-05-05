@@ -42,8 +42,4 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
 
-# 5. Clean up the default Nginx config to avoid conflicts
-RUN rm -f /etc/nginx/http.d/default.conf
-
-CMD [ "/run
-.sh" ]
+CMD [ "/run.sh" ]
