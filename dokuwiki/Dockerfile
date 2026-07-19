@@ -17,7 +17,7 @@ RUN apk add --no-cache \
     wget \
     unzip
 
-RUN wget -q https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz -O /tmp/dokuwiki.tgz \
+RUN wget -q https://github.com/dokuwiki/dokuwiki/releases/download/release-2024-02-06b/dokuwiki-2024-02-06b.tgz -O /tmp/dokuwiki.tgz \
     && mkdir -p /var/www/dokuwiki \
     && tar -xzf /tmp/dokuwiki.tgz -C /var/www/dokuwiki --strip-components=1 \
     && rm /tmp/dokuwiki.tgz \
