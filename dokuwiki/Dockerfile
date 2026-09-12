@@ -6,7 +6,6 @@ RUN apk add --no-cache \
     php83 \
     php83-fpm \
     php83-session \
-    php83-json \
     php83-gd \
     php83-xml \
     php83-mbstring \
@@ -14,8 +13,7 @@ RUN apk add --no-cache \
     php83-ctype \
     php83-zip \
     php83-fileinfo \
-    wget \
-    unzip
+    wget
 
 RUN wget -q https://github.com/dokuwiki/dokuwiki/releases/download/release-2024-02-06b/dokuwiki-2024-02-06b.tgz -O /tmp/dokuwiki.tgz \
     && mkdir -p /var/www/dokuwiki \

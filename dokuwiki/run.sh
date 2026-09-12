@@ -46,6 +46,9 @@ ln -sf /share/dokuwiki/conf /var/www/dokuwiki/conf
 ln -sf /share/dokuwiki/tpl /var/www/dokuwiki/lib/tpl
 ln -sf /share/dokuwiki/plugins /var/www/dokuwiki/lib/plugins
 
+# nginx braucht /run/nginx fuer die PID-Datei (wird im Container nicht automatisch angelegt)
+mkdir -p /run/nginx
+
 # PHP-FPM starten
 php-fpm83 -D
 
