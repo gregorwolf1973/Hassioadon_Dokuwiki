@@ -1,6 +1,6 @@
 name: "DokuWiki"
 description: "DokuWiki running as a Home Assistant Add-on"
-version: "1.0.2"
+version: "1.0.3"
 url: "https://github.com/gregorwolf1973/Hassioadon_Dokuwiki"
 slug: "dokuwiki"
 init: false
