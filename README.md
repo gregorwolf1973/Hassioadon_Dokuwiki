@@ -1,5 +1,7 @@
 # DokuWiki Home Assistant Add-on
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/gregorwolf1973)
+
 ![DokuWiki Logo](https://www.dokuwiki.org/lib/tpl/dokuwiki/images/logo.png)
 
 Ich habe kein für meine Zwecke brauchbares WIKI für Homeassistant gefunden, weshalb ich dieses erstellt habe. Probiert es gerne aus, wenn es euch hilft freue ich mich ;-)
