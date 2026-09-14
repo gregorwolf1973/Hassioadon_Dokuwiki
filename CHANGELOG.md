@@ -4,6 +4,10 @@
 
 - Fix: `armv7` aus `build.yaml` entfernt – die Architektur war in `config.yaml` `arch:` nicht gelistet (nur `aarch64`, `amd64`). build.yaml und config.yaml sind jetzt konsistent.
 
+## 1.0.2
+
+- Schlüssel `url` in der Add-on-Konfiguration ergänzt: Home Assistant zeigt auf der Add-on-Seite jetzt einen Link zum Repository. Sonst keine Änderungen am Image oder am Verhalten.
+
 ## 1.0.1
 
 - Fix: `php83-json` aus dem Dockerfile entfernt – das Paket existiert in Alpine 3.20 nicht (JSON ist seit PHP 8 fest eingebaut), dadurch schlug der Image-Build fehl.
