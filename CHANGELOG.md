@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.5
+
+- DokuWiki 2024-02-06b → **2026-07-14c „Mort“**.
+- Fix: Nach einem Upgrade über das Upgrade-Plugin im Wiki brach nach dem nächsten Add-on-Update jede Seite ab
+  („Could not check compatibility … dokuwiki\Parsing\Handler is not available“ im Plugin `info`). Das Upgrade-Plugin
+  erneuert den Kern nur im Container, die mitgelieferten Plugins aber dauerhaft unter `/share/dokuwiki` – nach dem
+  Neustart passten beide nicht mehr zusammen.
+- Beim Start gleicht das Add-on jetzt die mitgelieferten Plugins, das Standard-Template `dokuwiki` und die
+  Standard-Konfigurationsdateien mit der DokuWiki-Version des Images ab. Eigene Einstellungen (`local.php`, ACL,
+  Benutzer, `plugins.local.php`, `*.local.conf`), installierte Plugins und andere Templates bleiben unberührt.
+  Anpassungen direkt im Template `dokuwiki` gehen dabei verloren – dafür `conf/userstyle.css` nutzen.
+- Das Upgrade-Plugin wird über `conf/plugins.protected.php` abgeschaltet (nur wenn die Datei noch nicht existiert).
+  DokuWiki-Updates kommen mit dem Add-on.
+
 ## 1.0.4
 
 - PHP-Modul `php83-dom` ergänzt. Plugins wie BPMN.io (bpmnio) brauchen `DOMDocument`; ohne das Modul brach die Darstellung von Seiten mit BPMN-Diagrammen mit „Class "DOMDocument" not found“ ab.

@@ -17,19 +17,42 @@ mkdir -p /share/dokuwiki/conf
 mkdir -p /share/dokuwiki/tpl
 mkdir -p /share/dokuwiki/plugins
 
-# Original-Konfig kopieren falls conf leer ist
-if [ ! -f /share/dokuwiki/conf/dokuwiki.php ]; then
-    cp -r /var/www/dokuwiki.dist/conf/* /share/dokuwiki/conf/
-fi
+# Mitgelieferte Teile bei jedem Start auf die DokuWiki-Version des Images bringen. Sie liegen dauerhaft unter
+# /share; stammen sie aus einer anderen Version als der Kern (nach einem Add-on-Update oder einem Upgrade über das
+# Wiki), bricht jede Seite mit einem PHP-Fehler ab. Eigene Dateien (local.php, acl.auth.php, users.auth.php,
+# plugins.local.php, *.local.conf), installierte Plugins und andere Templates bleiben unberührt.
+DIST=/var/www/dokuwiki.dist
+DOKUWIKI_VERSION="$(cat "$DIST/VERSION")"
+echo "DokuWiki ${DOKUWIKI_VERSION}: mitgelieferte Plugins, Standard-Template und Standard-Konfiguration abgleichen"
 
-# Standard-Template kopieren falls tpl leer ist
-if [ ! -d /share/dokuwiki/tpl/dokuwiki ]; then
-    cp -r /var/www/dokuwiki.dist/lib/tpl/dokuwiki /share/dokuwiki/tpl/
-fi
+# Standard-Konfiguration (nur Vorgaben, die DokuWiki bei Upgrades selbst überschreibt)
+cp -f "$DIST"/conf/* /share/dokuwiki/conf/
 
-# Standard-Plugins kopieren falls plugins leer ist
-if [ ! -d /share/dokuwiki/plugins/config ]; then
-    cp -r /var/www/dokuwiki.dist/lib/plugins/* /share/dokuwiki/plugins/
+# Standard-Template
+rm -rf /share/dokuwiki/tpl/dokuwiki
+cp -r "$DIST/lib/tpl/dokuwiki" /share/dokuwiki/tpl/
+cp -f "$DIST/lib/tpl/index.php" /share/dokuwiki/tpl/
+
+# Mitgelieferte Plugins einzeln ersetzen, damit keine veralteten Dateien zurückbleiben
+for src in "$DIST"/lib/plugins/*; do
+    [ -e "$src" ] || continue
+    name="$(basename "$src")"
+    [ -n "$name" ] || continue
+    rm -rf "/share/dokuwiki/plugins/${name}"
+    cp -r "$src" /share/dokuwiki/plugins/
+done
+
+# Das Upgrade-Plugin abschalten: Es erneuert nur den Kern im Container, der beim nächsten Neustart wieder auf die
+# Version des Images zurückfällt. DokuWiki-Updates kommen mit dem Add-on.
+if [ ! -f /share/dokuwiki/conf/plugins.protected.php ]; then
+    cat > /share/dokuwiki/conf/plugins.protected.php <<'PHP'
+<?php
+/*
+ * Vom Add-on angelegt. DokuWiki wird über das Home-Assistant-Add-on aktualisiert; ein Upgrade im Wiki
+ * ginge beim nächsten Neustart verloren und ließe Kern und Plugins auseinanderlaufen.
+ */
+$plugins['upgrade'] = 0;
+PHP
 fi
 
 # Berechtigungen setzen

@@ -16,7 +16,11 @@ RUN apk add --no-cache \
     php83-fileinfo \
     wget
 
-RUN wget -q https://github.com/dokuwiki/dokuwiki/releases/download/release-2024-02-06b/dokuwiki-2024-02-06b.tgz -O /tmp/dokuwiki.tgz \
+# DokuWiki-Version: Mitgelieferte Plugins, Standard-Template und Standard-Konfiguration gleicht run.sh bei jedem Start
+# mit dieser Version ab, damit sie zum Kern passen.
+ARG DOKUWIKI_VERSION=2026-07-14c
+
+RUN wget -q https://github.com/dokuwiki/dokuwiki/releases/download/release-${DOKUWIKI_VERSION}/dokuwiki-${DOKUWIKI_VERSION}.tgz -O /tmp/dokuwiki.tgz \
     && mkdir -p /var/www/dokuwiki \
     && tar -xzf /tmp/dokuwiki.tgz -C /var/www/dokuwiki --strip-components=1 \
     && rm /tmp/dokuwiki.tgz \
