@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4
+
+- PHP-Modul `php83-dom` ergänzt. Plugins wie BPMN.io (bpmnio) brauchen `DOMDocument`; ohne das Modul brach die Darstellung von Seiten mit BPMN-Diagrammen mit „Class "DOMDocument" not found“ ab.
+
 ## 1.0.3
 
 - Fix: `armv7` aus `build.yaml` entfernt – die Architektur war in `config.yaml` `arch:` nicht gelistet (nur `aarch64`, `amd64`). build.yaml und config.yaml sind jetzt konsistent.
